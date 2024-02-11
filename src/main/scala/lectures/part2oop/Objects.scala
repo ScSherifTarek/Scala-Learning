@@ -22,4 +22,8 @@ object Objects extends App {
   p2 print
 
   Person.whisper(p2)
+
+  def print(person: Person): Unit = person.print
+
+  print(p2)
 }
