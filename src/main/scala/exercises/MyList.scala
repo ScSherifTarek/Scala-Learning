@@ -1,33 +1,42 @@
 package exercises
 
+
+class Node(val value: Int)
+
 abstract class MyList {
-  def getHead: Int
-  def getTail: MyList
+  def getHead: Node
+  def getTail: Node
   def isEmpty: Boolean
   def add(value: Int): MyList
   def toString: String
 }
 
-object EmptyList extends MyList {
-  def getHead: Int = throw new NoSuchElementException
-  def getTail: MyList = throw new NoSuchElementException
+class EmptyList extends MyList {
+  def getHead: Node = null
+  def getTail: Node = null
   def isEmpty: Boolean = true
   def add(value: Int): MyList = new List(value, this)
   override def toString: String = ""
 }
 
-class List(val head: Int, tail: MyList) extends MyList {
-  def getHead: Int = head
-  def getTail: MyList = tail
+class List(val value: Int, prev: MyList) extends MyList {
+  val tail = new Node(value)
+
+  def getHead: Node = {
+    val prevHead: Node = prev.getHead
+    if (prevHead == null) tail
+    else prevHead
+  }
+  def getTail: Node = tail
   def isEmpty: Boolean = false
   def add(value: Int): MyList = new List(value, this)
   override def toString: String =
-    if(tail.isEmpty) s"$head"
-    else s"$head ${tail.toString}"
+    if (prev.isEmpty) s"${tail.value}"
+    else s"${prev.toString} ${tail.value}"
 }
 
 object MyList {
-  def apply(): MyList =  EmptyList
+  def apply(): MyList =  new EmptyList
 }
 
 object TestMyList extends App {
@@ -35,8 +44,8 @@ object TestMyList extends App {
 
   val updatedList = list.add(5).add(6)
   println(updatedList.isEmpty)
-  println(updatedList.getHead)
-  println(updatedList.getTail)
+  println(updatedList.getHead.value)
+  println(updatedList.getTail.value)
   println(updatedList.toString)
 }
 
