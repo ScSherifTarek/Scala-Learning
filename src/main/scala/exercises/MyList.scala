@@ -11,6 +11,16 @@ abstract class MyList[+A] {
   def filter(predicate: (A) => Boolean): MyList[A]
   def flatMap[B](transform: (A) => MyList[B]): MyList[B]
   def concat[B >: A](rest: MyList[B]): MyList[B]
+
+  def foreach(f: A => Unit): Unit = {
+    if (!isEmpty) {
+      f(getHead)
+      getTail.foreach(f)
+    }
+  }
+  def sort(comparator: ((A, A) => Int)): MyList[A]
+  def zipWith[B >: A](otherList: MyList[B], zipper: (A, B) => B): MyList[B]
+  def fold[B >: A](start: B)(f: (A, B) => B): B
 }
 
 case object EmptyList extends MyList[Nothing] {
@@ -23,6 +33,11 @@ case object EmptyList extends MyList[Nothing] {
   override def filter(predicate: (Nothing) => Boolean): MyList[Nothing] = this
   override def flatMap[B](transform: (Nothing) => MyList[B]): MyList[B] = this
   override def concat[B](rest: MyList[B]): MyList[B] = rest
+  override def sort(comparator: (Nothing, Nothing) => Int): MyList[Nothing] = this
+
+  override def zipWith[B >: Nothing](otherList: MyList[B], zipper: (Nothing, B) => B): MyList[B] = otherList
+
+  override def fold[B >: Nothing](start: B)(f: (Nothing, B) => B): B = start
 }
 
 case class List[+A](val head: A, tail: MyList[A]) extends MyList[A] {
@@ -47,6 +62,27 @@ case class List[+A](val head: A, tail: MyList[A]) extends MyList[A] {
     else this.getTail.concat(rest).add(this.getHead)
   def flatMap[B](transform: A => MyList[B]): MyList[B] =
     transform(head).concat(tail.flatMap(transform))
+
+  override def sort(comparator: (A, A) => Int): MyList[A] = {
+    if (tail.isEmpty) this
+    else {
+      val sortedTail = tail.sort(comparator)
+      if(comparator(head, sortedTail.getHead) <= 0) {
+        new List(head, sortedTail)
+      } else {
+        val rest = new List(head, sortedTail.getTail)
+        new List(sortedTail.getHead, rest.sort(comparator))
+      }
+    }
+  }
+
+  override def zipWith[B >: A](otherList: MyList[B], zipper: (A, B) => B): MyList[B] = {
+    new List(zipper(head, otherList.getHead), tail.zipWith(otherList.getTail, zipper))
+  }
+
+  override def fold[B >: A](start: B)(f: (A, B) => B): B = {
+    tail.fold(f(head, start))(f)
+  }
 }
 
 object MyList {
@@ -71,7 +107,7 @@ object TestMyList extends App {
   println(updatedList.filter(lessThan10).map(multiplyBy10))
   println(updatedList.filter(lessThan10).map(multiplyBy10).flatMap(mapToOnePositiveAndOneNegative))
 
-  val updatedListClone = updatedList.asInstanceOf[List[Any]].copy()
+  val updatedListClone = updatedList.asInstanceOf[List[Int]].copy()
   println(updatedList)
   println(updatedListClone)
   println(updatedList == updatedListClone)
@@ -79,6 +115,9 @@ object TestMyList extends App {
   println(newUpdatedList)
   println(updatedList)
 
+  println(newUpdatedList.sort(_ - _))
+  println(newUpdatedList.zipWith(newUpdatedList, _ * _))
+  println(newUpdatedList.fold(0)(_ + _))
 }
 
 
