@@ -7,9 +7,9 @@ abstract class MyList[+A] {
   def add[B >: A](value: B): MyList[B]
   override def toString: String = "["+this._toString+"]"
   def _toString: String
-  def map[B](transformer: MyTransformer[A, B]): MyList[B]
-  def filter(predicate: MyPredicate[A]): MyList[A]
-  def flatMap[B](transformer: MyTransformer[A, MyList[B]]): MyList[B]
+  def map[B](transform: (A) => B): MyList[B]
+  def filter(predicate: (A) => Boolean): MyList[A]
+  def flatMap[B](transform: (A) => MyList[B]): MyList[B]
   def concat[B >: A](rest: MyList[B]): MyList[B]
 }
 
@@ -19,9 +19,9 @@ case object EmptyList extends MyList[Nothing] {
   def isEmpty: Boolean = true
   def add[A >: Nothing](value: A): MyList[A] = new List[A](value, this)
   override def _toString: String = ""
-  override def map[B](transformer: MyTransformer[Nothing, B]): MyList[B] = this
-  override def filter(predicate: MyPredicate[Nothing]): MyList[Nothing] = this
-  override def flatMap[B](transformer: MyTransformer[Nothing, MyList[B]]): MyList[B] = this
+  override def map[B](transform: (Nothing) => B): MyList[B] = this
+  override def filter(predicate: (Nothing) => Boolean): MyList[Nothing] = this
+  override def flatMap[B](transform: (Nothing) => MyList[B]): MyList[B] = this
   override def concat[B](rest: MyList[B]): MyList[B] = rest
 }
 
@@ -34,32 +34,25 @@ case class List[+A](val head: A, tail: MyList[A]) extends MyList[A] {
     if(tail.isEmpty) s"$head"
     else s"$head ${tail._toString}"
 
-  def map[B](transformer: MyTransformer[A, B]): MyList[B] =
-    new List(transformer.transform(head), tail.map(transformer))
+  def map[B](transform: Function1[A, B]): MyList[B] =
+    new List(transform(head), tail.map(transform))
 
-  def filter(predicate: MyPredicate[A]): MyList[A] =
-    if(predicate.test(head)) new List(head, tail.filter(predicate))
+  def filter(predicate: (A) => Boolean): MyList[A] =
+    if(predicate(head)) new List(head, tail.filter(predicate))
     else tail.filter(predicate)
 
   def concat[B >: A](rest: MyList[B]): MyList[B] =
     if (this.isEmpty) rest
     else if (this.getTail.isEmpty) rest.add(this.getHead)
     else this.getTail.concat(rest).add(this.getHead)
-  def flatMap[B](transformer: MyTransformer[A, MyList[B]]): MyList[B] =
-    transformer.transform(head).concat(tail.flatMap(transformer))
+  def flatMap[B](transform: Function1[A, MyList[B]]): MyList[B] =
+    transform(head).concat(tail.flatMap(transform))
 }
 
 object MyList {
   def apply[A](): MyList[A] =  EmptyList
 }
 
-trait MyPredicate[-T] {
-  def test(o: T): Boolean
-}
-
-trait MyTransformer[-A, B] {
-  def transform(o: A): B
-}
 object TestMyList extends App {
   val list: MyList[Int] = MyList[Int]()
   println(list.isEmpty)
@@ -70,14 +63,14 @@ object TestMyList extends App {
   println(updatedList.getTail)
   println(updatedList.toString)
 
-  val lessThan10 = new MyPredicate[Int] {
-    def test(o: Int): Boolean = o < 10
+  val lessThan10 = new Function1[Int, Boolean] {
+    override def apply(val1: Int): Boolean = val1 < 10
   }
-  val multiplyBy10 = new MyTransformer[Int, Int] {
-    def transform(o: Int): Int = o * 10
+  val multiplyBy10 = new Function1[Int, Int] {
+    override def apply(o: Int): Int = o * 10
   }
-  val mapToOnePositiveAndOneNegative = new MyTransformer[Int, MyList[Int]] {
-    def transform(o: Int): MyList[Int] = MyList().add(-o).add(o)
+  val mapToOnePositiveAndOneNegative = new Function1[Int, MyList[Int]] {
+    override def apply(o: Int): MyList[Int] = MyList().add(-o).add(o)
   }
 
   println(updatedList.filter(lessThan10))
