@@ -34,7 +34,7 @@ case class List[+A](val head: A, tail: MyList[A]) extends MyList[A] {
     if(tail.isEmpty) s"$head"
     else s"$head ${tail._toString}"
 
-  def map[B](transform: Function1[A, B]): MyList[B] =
+  def map[B](transform: A => B): MyList[B] =
     new List(transform(head), tail.map(transform))
 
   def filter(predicate: (A) => Boolean): MyList[A] =
@@ -45,7 +45,7 @@ case class List[+A](val head: A, tail: MyList[A]) extends MyList[A] {
     if (this.isEmpty) rest
     else if (this.getTail.isEmpty) rest.add(this.getHead)
     else this.getTail.concat(rest).add(this.getHead)
-  def flatMap[B](transform: Function1[A, MyList[B]]): MyList[B] =
+  def flatMap[B](transform: A => MyList[B]): MyList[B] =
     transform(head).concat(tail.flatMap(transform))
 }
 
@@ -63,15 +63,9 @@ object TestMyList extends App {
   println(updatedList.getTail)
   println(updatedList.toString)
 
-  val lessThan10 = new Function1[Int, Boolean] {
-    override def apply(val1: Int): Boolean = val1 < 10
-  }
-  val multiplyBy10 = new Function1[Int, Int] {
-    override def apply(o: Int): Int = o * 10
-  }
-  val mapToOnePositiveAndOneNegative = new Function1[Int, MyList[Int]] {
-    override def apply(o: Int): MyList[Int] = MyList().add(-o).add(o)
-  }
+  val lessThan10: Int => Boolean = _ < 10
+  val multiplyBy10: Int => Int = _ * 10
+  val mapToOnePositiveAndOneNegative: Int => MyList[Int] = x => MyList().add(-x).add(x)
 
   println(updatedList.filter(lessThan10))
   println(updatedList.filter(lessThan10).map(multiplyBy10))
