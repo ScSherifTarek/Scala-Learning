@@ -5,33 +5,34 @@ abstract class MyList[+A] {
   def getTail: MyList[A]
   def isEmpty: Boolean
   def add[B >: A](value: B): MyList[B]
-  def toString: String
+  override def toString: String = "["+this._toString+"]"
+  def _toString: String
   def map[B](transformer: MyTransformer[A, B]): MyList[B]
   def filter(predicate: MyPredicate[A]): MyList[A]
   def flatMap[B](transformer: MyTransformer[A, MyList[B]]): MyList[B]
   def concat[B >: A](rest: MyList[B]): MyList[B]
 }
 
-object EmptyList extends MyList[Nothing] {
+case object EmptyList extends MyList[Nothing] {
   def getHead: Nothing = throw new NoSuchElementException
   def getTail: MyList[Nothing] = throw new NoSuchElementException
   def isEmpty: Boolean = true
   def add[A >: Nothing](value: A): MyList[A] = new List[A](value, this)
-  override def toString: String = ""
+  override def _toString: String = ""
   override def map[B](transformer: MyTransformer[Nothing, B]): MyList[B] = this
   override def filter(predicate: MyPredicate[Nothing]): MyList[Nothing] = this
   override def flatMap[B](transformer: MyTransformer[Nothing, MyList[B]]): MyList[B] = this
   override def concat[B](rest: MyList[B]): MyList[B] = rest
 }
 
-class List[+A](val head: A, tail: MyList[A]) extends MyList[A] {
+case class List[+A](val head: A, tail: MyList[A]) extends MyList[A] {
   def getHead: A = head
   def getTail: MyList[A] = tail
   def isEmpty: Boolean = false
   def add[B >: A](value: B): MyList[B] = new List[B](value, this)
-  override def toString: String =
+  override def _toString: String =
     if(tail.isEmpty) s"$head"
-    else s"$head ${tail.toString}"
+    else s"$head ${tail._toString}"
 
   def map[B](transformer: MyTransformer[A, B]): MyList[B] =
     new List(transformer.transform(head), tail.map(transformer))
@@ -82,6 +83,15 @@ object TestMyList extends App {
   println(updatedList.filter(lessThan10))
   println(updatedList.filter(lessThan10).map(multiplyBy10))
   println(updatedList.filter(lessThan10).map(multiplyBy10).flatMap(mapToOnePositiveAndOneNegative))
+
+  val updatedListClone = updatedList.asInstanceOf[List[Any]].copy()
+  println(updatedList)
+  println(updatedListClone)
+  println(updatedList == updatedListClone)
+  val newUpdatedList = updatedListClone.add(5)
+  println(newUpdatedList)
+  println(updatedList)
+
 }
 
 
