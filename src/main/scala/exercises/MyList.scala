@@ -115,6 +115,7 @@ object TestMyList extends App {
   println(newUpdatedList)
   println(updatedList)
 
+  newUpdatedList.foreach(println)
   println(newUpdatedList.sort(_ - _))
   println(newUpdatedList.zipWith(newUpdatedList, _ * _))
   println(newUpdatedList.fold(0)(_ + _))
