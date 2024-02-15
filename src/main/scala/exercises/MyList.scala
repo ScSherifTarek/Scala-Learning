@@ -119,6 +119,16 @@ object TestMyList extends App {
   println(newUpdatedList.sort(_ - _))
   println(newUpdatedList.zipWith(newUpdatedList, _ * _))
   println(newUpdatedList.fold(0)(_ + _))
+
+  val numbersList = MyList().add(1).add(2).add(3).add(4)
+  val stringsList = MyList().add("ahmed").add("mohamed").add("mahmoud").add("hamada")
+  val colorsList = MyList().add("red").add("black").add("yellow").add("blue")
+  for {
+    n <- numbersList 
+    s <- stringsList
+    c <- colorsList
+  } yield println("" + n + s + "-" + c)
+
 }
 
 
