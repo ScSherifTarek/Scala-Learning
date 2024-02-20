@@ -1,4 +1,4 @@
-package lectures.part4pm
+package lectures.basics.part4pm
 
 object PatternMatching extends App {
   /*

@@ -1,4 +1,4 @@
-package lectures.part3fb
+package lectures.basics.part3fb
 
 object HOFsCurries extends App {
   /*

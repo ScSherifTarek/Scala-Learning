@@ -1,4 +1,4 @@
-package lectures.part1basics
+package lectures.basics.part1basics
 
 object Functions extends App {
   def greeting(name: String, age: Int): Unit = println(f"Hi, my name is $name and I'm $age years old")

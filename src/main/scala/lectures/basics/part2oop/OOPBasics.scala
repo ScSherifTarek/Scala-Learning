@@ -1,4 +1,4 @@
-package lectures.part2oop
+package lectures.basics.part2oop
 
 object OOPBasics extends App {
   val p = new Person()

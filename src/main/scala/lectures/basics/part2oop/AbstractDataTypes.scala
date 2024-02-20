@@ -1,4 +1,4 @@
-package lectures.part2oop
+package lectures.basics.part2oop
 
 object AbstractDataTypes extends App {
   abstract class Animal(val name: String) {

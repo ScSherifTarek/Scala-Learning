@@ -1,4 +1,4 @@
-package lectures.part3fb
+package lectures.basics.part3fb
 
 object MapFlatmapFilterFor extends App {
   val numbers = List(1, 2, 3)

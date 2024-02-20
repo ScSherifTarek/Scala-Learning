@@ -1,4 +1,4 @@
-package lectures.part3fb
+package lectures.basics.part3fb
 
 object TuplesAndMaps extends App {
   val tuple1: (String, Int) = ("Hamada", 123)

@@ -1,4 +1,4 @@
-package lectures.part3fb
+package lectures.basics.part3fb
 
 import java.util.Random
 import scala.util.Try

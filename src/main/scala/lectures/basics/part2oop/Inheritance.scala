@@ -1,4 +1,4 @@
-package lectures.part2oop
+package lectures.basics.part2oop
 
 object Inheritance extends App {
   class Person(val name: String, val age: Int) {
