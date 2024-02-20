@@ -2,6 +2,6 @@ package playground
 
 object Playground {
   def main(args: Array[String]): Unit = {
-    println("I'm ready to learn Scala!")
+    println("I'm ready to become a Scala rockstar!")
   }
 }
