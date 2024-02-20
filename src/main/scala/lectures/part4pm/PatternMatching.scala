@@ -20,11 +20,19 @@ object PatternMatching extends App {
     expr match {
       case Number(n) => s"${n}"
       case Sum(e1, e2) => s"${show(e1)} + ${show(e2)}"
-      case Prod(Sum(e1, e2), Sum(e3, e4)) => s"(${show(e1)} + ${show(e2)}) * (${show(e3)} + ${show(e4)})"
-      case Prod(Sum(e1, e2), e3) => s"(${show(e1)} + ${show(e2)}) * ${show(e3)}"
-      case Prod(e1, Sum(e2, e3)) => s"${show(e1)} * (${show(e2)} + ${show(e3)})}"
-      case Prod(e1, e2) => s"${show(e1)} * ${show(e2)}"
+      case Prod(e1, e2) => {
+        def withParenthesesIfNeeded(expr: Expr) = expr match {
+          case Sum(_, _) => s"(${show(expr)})"
+          case _ => show(expr)
+        }
+        withParenthesesIfNeeded(e1) + " * " + withParenthesesIfNeeded(e2)
+      }
     }
 
   println(show(Prod(Sum(Number(1), Number(2)), Prod(Number(2),Number(3)))))
+  println(show(Sum(Number(2), Number(3))))
+  println(show(Sum(Sum(Number(2), Number(3)), Number(4))))
+  println(show(Prod(Sum(Number(2), Number(1)), Number(3))))
+  println(show(Prod(Sum(Number(2), Number(1)), Sum(Number(3), Number(4)))))
+  println(show(Sum(Prod(Number(2), Number(1)), Number(3))))
 }
