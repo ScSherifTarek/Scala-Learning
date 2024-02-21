@@ -1,5 +1,7 @@
 package lectures.advanced.part1as
 
+import scala.runtime.Nothing$
+
 object AdvancedPatternMatching extends App {
 
   object Even {
@@ -17,4 +19,21 @@ object AdvancedPatternMatching extends App {
     case _ => s"${n} has no property"
   }
   println(matchPattern)
+
+  abstract class Wrapper[T] {
+    def get: T
+    def isEmpty: Boolean
+  }
+
+  object IntWrapper {
+    def unapply(arg: Int): Wrapper[Int] =
+      new Wrapper[Int] {
+        def get: Int = arg * 10
+        def isEmpty: Boolean = false
+      }
+  }
+
+  println(n match {
+    case IntWrapper(x) => s"${x} is my number"
+  })
 }
