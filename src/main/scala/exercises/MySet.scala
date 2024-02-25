@@ -12,7 +12,9 @@ trait MySet[A] extends (A => Boolean) {
   def foreach(f: A => Unit): Unit
   def isEmpty: Boolean = true
   def getPrintFormat: String
-
+  def -(v: A): MySet[A] = this.filter(_ != v)
+  def &&(another: MySet[A]): MySet[A] = this.filter(another.contains)
+  def --(another: MySet[A]): MySet[A] = this.filter(!another.contains(_))
   override def apply(v1: A): Boolean = this.contains(v1)
   override def toString(): String = "(" + this.getPrintFormat + ")"
 }
@@ -25,7 +27,6 @@ class EmptySet[A] extends MySet[A] {
   override def map[B](f: A => B): MySet[B] = new EmptySet[B]
   override def flatMap[B](f: A => MySet[B]): MySet[B] = new EmptySet[B]
   override def foreach(f: A => Unit): Unit = ()
-
   override def getPrintFormat: String = ""
 }
 
@@ -66,18 +67,24 @@ object MySet {
 }
 
 object TestMySet extends App {
-  val s1 = MySet(5) ++ (MySet(6) + 7) ++ (MySet(8) + 6) + 10 + 5
+  val s1 = MySet(5) ++ (MySet(6) + 7) ++ (MySet(8) + 6) + 10 + 5 + 9 + 11
   println(s1.toString())
   println(s1.map(_*10))
   println(s1.filter(_%2 == 0))
   println(s1.flatMap(x => (MySet(x*10) + x*100)))
   s1.foreach(println)
 
-  val s2 = MySet(5, 6, 7, 8, 6, 10, 5)
+  val s2 = MySet(5, 6, 7, 8, 6, 10, 5, 14, 18, 20)
   println(s2.toString())
   println(s2.map(_ * 10))
   println(s2.filter(_ % 2 == 0))
   println(s2.flatMap(x => MySet(x * 10, x * 100)))
   s2.foreach(println)
+
+  println(s1)
+  println(s2)
+  println(s1 - 5)
+  println(s1 && s2)
+  println(s1 -- s2)
 }
 
