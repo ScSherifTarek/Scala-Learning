@@ -13,7 +13,7 @@ trait MySet[A] extends (A => Boolean) {
   def isEmpty: Boolean = true
   def getPrintFormat: String
   def -(v: A): MySet[A] = this.filter(_ != v)
-  def &&(another: MySet[A]): MySet[A] = this.filter(another.contains)
+  def &(another: MySet[A]): MySet[A] = this.filter(another.contains)
   def --(another: MySet[A]): MySet[A] = this.filter(!another.contains(_))
   override def apply(v1: A): Boolean = this.contains(v1)
   override def toString(): String = "(" + this.getPrintFormat + ")"
@@ -84,7 +84,7 @@ object TestMySet extends App {
   println(s1)
   println(s2)
   println(s1 - 5)
-  println(s1 && s2)
+  println(s1 & s2)
   println(s1 -- s2)
 }
 
