@@ -27,7 +27,7 @@ case object EmptyList extends MyList[Nothing] {
   def getHead: Nothing = throw new NoSuchElementException
   def getTail: MyList[Nothing] = throw new NoSuchElementException
   def isEmpty: Boolean = true
-  def add[A >: Nothing](value: A): MyList[A] = new List[A](value, this)
+  def add[A >: Nothing](value: A): MyList[A] = new Cons[A](value, this)
   override def _toString: String = ""
   override def map[B](transform: (Nothing) => B): MyList[B] = this
   override def filter(predicate: (Nothing) => Boolean): MyList[Nothing] = this
@@ -40,20 +40,20 @@ case object EmptyList extends MyList[Nothing] {
   override def fold[B >: Nothing](start: B)(f: (Nothing, B) => B): B = start
 }
 
-case class List[+A](val head: A, tail: MyList[A]) extends MyList[A] {
+case class Cons[+A](val head: A, tail: MyList[A]) extends MyList[A] {
   def getHead: A = head
   def getTail: MyList[A] = tail
   def isEmpty: Boolean = false
-  def add[B >: A](value: B): MyList[B] = new List[B](value, this)
+  def add[B >: A](value: B): MyList[B] = new Cons[B](value, this)
   override def _toString: String =
     if(tail.isEmpty) s"$head"
     else s"$head ${tail._toString}"
 
   def map[B](transform: A => B): MyList[B] =
-    new List(transform(head), tail.map(transform))
+    new Cons(transform(head), tail.map(transform))
 
   def filter(predicate: (A) => Boolean): MyList[A] =
-    if(predicate(head)) new List(head, tail.filter(predicate))
+    if(predicate(head)) new Cons(head, tail.filter(predicate))
     else tail.filter(predicate)
 
   def concat[B >: A](rest: MyList[B]): MyList[B] =
@@ -68,16 +68,16 @@ case class List[+A](val head: A, tail: MyList[A]) extends MyList[A] {
     else {
       val sortedTail = tail.sort(comparator)
       if(comparator(head, sortedTail.getHead) <= 0) {
-        new List(head, sortedTail)
+        new Cons(head, sortedTail)
       } else {
-        val rest = new List(head, sortedTail.getTail)
-        new List(sortedTail.getHead, rest.sort(comparator))
+        val rest = new Cons(head, sortedTail.getTail)
+        new Cons(sortedTail.getHead, rest.sort(comparator))
       }
     }
   }
 
   override def zipWith[B >: A](otherList: MyList[B], zipper: (A, B) => B): MyList[B] = {
-    new List(zipper(head, otherList.getHead), tail.zipWith(otherList.getTail, zipper))
+    new Cons(zipper(head, otherList.getHead), tail.zipWith(otherList.getTail, zipper))
   }
 
   override def fold[B >: A](start: B)(f: (A, B) => B): B = {
@@ -107,7 +107,7 @@ object TestMyList extends App {
   println(updatedList.filter(lessThan10).map(multiplyBy10))
   println(updatedList.filter(lessThan10).map(multiplyBy10).flatMap(mapToOnePositiveAndOneNegative))
 
-  val updatedListClone = updatedList.asInstanceOf[List[Int]].copy()
+  val updatedListClone = updatedList.asInstanceOf[Cons[Int]].copy()
   println(updatedList)
   println(updatedListClone)
   println(updatedList == updatedListClone)
