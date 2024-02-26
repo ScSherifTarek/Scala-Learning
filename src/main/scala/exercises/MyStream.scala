@@ -56,13 +56,12 @@ object EmptyStream extends MyStream[Nothing] {
 
 class NonEmptyStream[+A](h: A, tl: => MyStream[A]) extends MyStream[A] {
   def head: A = h
-  override lazy val tail: MyStream[A] = tl
+  def tail: MyStream[A] = tl
   def isEmpty: Boolean = false
   def #::[B >: A](element: B): MyStream[B] = new NonEmptyStream[B](element, this) // prepend operator
 
   def ++[B >: A](anotherStream: => MyStream[B]): MyStream[B] =
-    if (anotherStream.isEmpty) this
-    else new NonEmptyStream[B](head, tail ++ anotherStream)
+    new NonEmptyStream[B](head, tail ++ anotherStream)
 
   def foreach(f: A => Unit): Unit =
     f(head)
@@ -108,5 +107,5 @@ object Playground extends App {
   println(startFrom0.map(_ * 2).take(100).toList())
   println((startFrom0 ++ startFrom0.map(_*2)).take(10).toList())
   println(startFrom0.flatMap(x => new NonEmptyStream(x, new NonEmptyStream(x + 1, EmptyStream))).take(10).toList())
-//  println(startFrom0.filter(_ < 10).take(10).take(20).toList())
+  println(startFrom0.filter(_ < 10).take(10).take(20).toList())
 }
