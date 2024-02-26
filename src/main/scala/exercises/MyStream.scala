@@ -74,13 +74,17 @@ class NonEmptyStream[+A](h: A, tl: => MyStream[A]) extends MyStream[A] {
     f(head) ++ tail.flatMap(f)
 
   def filter(predicate: A => Boolean): MyStream[A] =
-    if (predicate(head)) new NonEmptyStream[A](head, tail.filter(predicate))
-    else tail.filter(predicate)
+    if (predicate(head))
+      new NonEmptyStream[A](head, tail.filter(predicate))
+    else
+      tail.filter(predicate)
 
   def take(n: Int): MyStream[A] = // takes the first n elements out of this stream
-    if (n <= 0) EmptyStream
-    else if (n == 1) new NonEmptyStream(head, EmptyStream) // Having only n == 0: return EmptyStream don't work!
-    else new NonEmptyStream[A](head, tail.take(n - 1))
+    if (n <= 0)
+      EmptyStream
+//    else if (n == 1) new NonEmptyStream(head, EmptyStream) // Having only n == 0: return EmptyStream don't work!
+    else
+      new NonEmptyStream[A](head, tail.take(n - 1))
 
   def takeAsList(n: Int): List[A] =
     if (n == 0) List()
@@ -106,8 +110,53 @@ object Playground extends App {
 
   // map, flatMap
   println(startFrom0.take(10).toList())
-  println(startFrom0.map(_ * 2).take(100).toList())
-  println((startFrom0 ++ startFrom0.map(_*2)).take(10).toList())
-  println(startFrom0.flatMap(x => new NonEmptyStream(x, new NonEmptyStream(x + 1, EmptyStream))).take(10).toList())
-  println(startFrom0.filter(_ < 10).take(10).take(20).toList())
+//  println(startFrom0.map(_ * 2).take(100).toList())
+//  println((startFrom0 ++ startFrom0.map(_*2)).take(10).toList())
+//  println(startFrom0.flatMap(x => new NonEmptyStream(x, new NonEmptyStream(x + 1, EmptyStream))).take(10).toList())
+//  println(startFrom0.filter(_ < 15).take(2).toList())
+
+  // Exercises on streams
+  // 1 - stream of Fibonacci numbers
+  // 2 - stream of prime numbers with Eratosthenes' sieve
+  /*
+    [ 2 3 4 ... ]
+    filter out all numbers divisible by 2
+    [ 2 3 5 7 9 11 ...]
+    filter  out all numbers divisible by 3
+    [ 2 3 5 7 11 13 17 ... ]
+    filter out all numbers divisible by 5
+      ...
+  1 1
+   */
+
+  val fibGeneratorCreator = () => {
+    var prev = 0
+    (cur: Int) => {
+      val temp = prev + cur
+      prev = cur
+      temp
+    }
+  }
+  val fibGenerator: Int => Int = fibGeneratorCreator()
+  val fib = MyStream.from(1)(fibGenerator)
+  println(fib.take(10).toList())
+
+  val primesGeneratorCreator = () => {
+    var primeList: List[Int] = List(2)
+
+    @tailrec
+    def helper(nxt: Int): Int =
+      if (primeList.exists(nxt % _ == 0)) helper(nxt + 1)
+      else nxt
+
+    (cur: Int) => {
+      val nxt = helper(cur + 1)
+      primeList = primeList :+ nxt
+      nxt
+    }
+  }
+  val primesGenerator: Int => Int = primesGeneratorCreator()
+  val primes = MyStream.from(1)(primesGenerator)
+  println(primes.take(10).toList())
+
 }
