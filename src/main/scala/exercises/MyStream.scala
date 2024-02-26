@@ -56,7 +56,7 @@ object EmptyStream extends MyStream[Nothing] {
 
 class NonEmptyStream[+A](h: A, tl: => MyStream[A]) extends MyStream[A] {
   def head: A = h
-  def tail: MyStream[A] = tl
+  override lazy val tail: MyStream[A] = tl
   def isEmpty: Boolean = false
   def #::[B >: A](element: B): MyStream[B] = new NonEmptyStream[B](element, this) // prepend operator
 
@@ -78,7 +78,8 @@ class NonEmptyStream[+A](h: A, tl: => MyStream[A]) extends MyStream[A] {
     else tail.filter(predicate)
 
   def take(n: Int): MyStream[A] = // takes the first n elements out of this stream
-    if (n == 0) EmptyStream
+    if (n <= 0) EmptyStream
+    else if (n == 1) new NonEmptyStream(head, EmptyStream) // Having only n == 0: return EmptyStream don't work!
     else new NonEmptyStream[A](head, tail.take(n - 1))
 
   def takeAsList(n: Int): List[A] =
@@ -101,9 +102,10 @@ object Playground extends App {
   val startFrom0 = 0 #:: naturals // naturals.#::(0)
   println(startFrom0.head)
 
-  startFrom0.take(10000).foreach(println)
+//  startFrom0.take(10000).foreach(println)
 
   // map, flatMap
+  println(startFrom0.take(10).toList())
   println(startFrom0.map(_ * 2).take(100).toList())
   println((startFrom0 ++ startFrom0.map(_*2)).take(10).toList())
   println(startFrom0.flatMap(x => new NonEmptyStream(x, new NonEmptyStream(x + 1, EmptyStream))).take(10).toList())
