@@ -128,7 +128,6 @@ object Playground extends App {
       ...
   1 1
    */
-
   val fibGeneratorCreator = () => {
     var prev = 0
     (cur: Int) => {
@@ -159,4 +158,13 @@ object Playground extends App {
   val primes = MyStream.from(1)(primesGenerator)
   println(primes.take(10).toList())
 
+  def createFibStream(first: Int = 0, second: Int = 1): NonEmptyStream[Int] = {
+    new NonEmptyStream[Int](second, createFibStream(second, first + second))
+  }
+  println(createFibStream().take(10).toList())
+
+  def createPrimeStream(numbers: MyStream[Int]): MyStream[Int] = {
+    new NonEmptyStream[Int](numbers.head, createPrimeStream(numbers.filter(_ % numbers.head != 0)))
+  }
+  println(createPrimeStream(MyStream.from(2)(_+1)).take(10).toList())
 }
