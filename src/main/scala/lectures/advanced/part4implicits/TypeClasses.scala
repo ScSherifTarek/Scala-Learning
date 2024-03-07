@@ -18,8 +18,15 @@ object TypeClasses extends App {
     def apply[T](a: T, b: T)(implicit equalizer: Equal[T]): Boolean = equalizer.apply(a, b)
   }
 
+  implicit class EqualEnrichment[T](value: T) {
+    def ===(anotherValue: T)(implicit equalizer: Equal[T]): Boolean = equalizer.apply(value, anotherValue)
+    def !==(anotherValue: T)(implicit equalizer: Equal[T]): Boolean = !this.===(anotherValue)
+  }
+
   val sherif = Person("Sherif", 25, "sherif@backend.com")
   val sherif2 = Person("Sherif", 32, "ahmed@backend.com")
   println(Equal(sherif, sherif2))
   println(Equal(sherif, sherif2)(FullEqual))
+  println(sherif === sherif2)
+  println(sherif !== sherif2)
 }
